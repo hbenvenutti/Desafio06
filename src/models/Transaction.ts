@@ -5,6 +5,7 @@ import {
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import Category from './Category';
 
@@ -23,6 +24,7 @@ class Transaction {
   value: number;
 
   @ManyToOne(() => Category)
+  @JoinColumn({ name: 'category_id' })
   category_id: string;
 
   @CreateDateColumn()

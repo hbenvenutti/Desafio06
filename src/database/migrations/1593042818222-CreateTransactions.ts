@@ -26,7 +26,12 @@ export default class CreateTransactions1593042818222
           },
           {
             name: 'value',
-            type: 'money',
+            type: 'real',
+            isNullable: false,
+          },
+          {
+            name: 'type',
+            type: 'varchar',
             isNullable: false,
           },
           {
