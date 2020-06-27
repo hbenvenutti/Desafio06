@@ -1,10 +1,11 @@
-import { getRepository } from 'typeorm';
+import { getCustomRepository } from 'typeorm';
 
 import Category from '../models/Category';
+import CategoryRespository from '../repositories/CategoriesRepository';
 
 class CreateCategoryService {
   public async execute(title: string): Promise<Category> {
-    const categoriesRepository = getRepository(Category);
+    const categoriesRepository = getCustomRepository(CategoryRespository);
 
     const categoryExists = await categoriesRepository.findOne({
       where: {
