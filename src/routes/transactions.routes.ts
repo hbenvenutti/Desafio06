@@ -9,7 +9,7 @@ import CreateTransactionService from '../services/CreateTransactionService';
 import DeleteTransactionService from '../services/DeleteTransactionService';
 import ImportTransactionsService from '../services/ImportTransactionsService';
 
-import ParseCsvService from '../services/ParseCsvService';
+// import ParseCsvService from '../services/ParseCsvService';
 
 const upload = multer(uploadConfig);
 
@@ -52,16 +52,18 @@ transactionsRouter.post(
   '/import',
   upload.single('file'),
   async (request, response) => {
-    const parseCsv = new ParseCsvService();
+    // const parseCsv = new ParseCsvService();
 
+    /*
     const parsedTransactions = await parseCsv.execute({
-      fileName: request.file.filename,
+      path: request.file.path,
     });
+    */
 
     const importTransactions = new ImportTransactionsService();
 
     const transactions = await importTransactions.execute({
-      parsedTransactions,
+      path: request.file.path,
     });
 
     return response.json(transactions);
