@@ -1,17 +1,21 @@
 import { Router } from 'express';
 import { getCustomRepository } from 'typeorm';
+import multer from 'multer';
+
+import uploadConfig from '../config/upload';
 
 import TransactionsRepository from '../repositories/TransactionsRepository';
 import CreateTransactionService from '../services/CreateTransactionService';
 import DeleteTransactionService from '../services/DeleteTransactionService';
-// import ImportTransactionsService from '../services/ImportTransactionsService';
+import ImportTransactionsService from '../services/ImportTransactionsService';
 
-import CreateCategoryService from '../services/CreateCategoryService';
+import ParseCsvService from '../services/ParseCsvService';
+
+const upload = multer(uploadConfig);
 
 const transactionsRouter = Router();
 
 transactionsRouter.get('/', async (request, response) => {
-  // TODO
   const transactionsRepository = getCustomRepository(TransactionsRepository);
   const transactions = await transactionsRepository.find();
   const balance = await transactionsRepository.getBalance();
@@ -20,19 +24,15 @@ transactionsRouter.get('/', async (request, response) => {
 });
 
 transactionsRouter.post('/', async (request, response) => {
-  // TODO
-  const { title, value, type, category: categoryTitle } = request.body;
+  const { title, value, type, category } = request.body;
 
   const createTransaction = new CreateTransactionService();
-  const createCategory = new CreateCategoryService();
-
-  const { id: category_id } = await createCategory.execute(categoryTitle);
 
   const transaction = await createTransaction.execute({
     title,
     value,
     type,
-    category_id,
+    category,
   });
 
   return response.json(transaction);
@@ -45,11 +45,27 @@ transactionsRouter.delete('/:id', async (request, response) => {
 
   await deleteTransaction.execute({ id });
 
-  return response.json({ message: 'Deleted' });
+  return response.json({ ok: true });
 });
 
-transactionsRouter.post('/import', async (request, response) => {
-  // TODO
-});
+transactionsRouter.post(
+  '/import',
+  upload.single('file'),
+  async (request, response) => {
+    const parseCsv = new ParseCsvService();
+
+    const parsedTransactions = await parseCsv.execute({
+      fileName: request.file.filename,
+    });
+
+    const importTransactions = new ImportTransactionsService();
+
+    const transactions = await importTransactions.execute({
+      parsedTransactions,
+    });
+
+    return response.json(transactions);
+  },
+);
 
 export default transactionsRouter;
